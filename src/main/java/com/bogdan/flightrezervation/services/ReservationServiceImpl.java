@@ -11,7 +11,9 @@ import com.bogdan.flightrezervation.util.EmailUtil;
 import com.bogdan.flightrezervation.util.PDFGenerator;
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
@@ -19,6 +21,8 @@ import java.io.FileNotFoundException;
 @Service
 public class ReservationServiceImpl implements ReservationService {
 
+    @Value("${com.bogdan.flight-rezervation.itinerary.dirpath}")
+    public String ITINERARY_DIR;
     @Autowired
     PDFGenerator pdfGenerator;
     @Autowired
@@ -31,6 +35,7 @@ public class ReservationServiceImpl implements ReservationService {
     private ReservationRepository reservationRepository;
 
     @Override
+    @Transactional
     public Reservation bookFlight(ReservationRequest request) {
 
         //Make payment
@@ -52,7 +57,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation savedReservation = reservationRepository.save(reservation);
 
         try {
-            String filePath = "C:\\Users\\BogdanStefoni\\Desktop\\Learning\\Spring Boot Projects\\reservations\\reservation" + savedReservation.getId() + ".pdf";
+            String filePath = ITINERARY_DIR + savedReservation.getId() + ".pdf";
             pdfGenerator.generateItinerary(savedReservation,
                     filePath);
             emailUtil.sendItinerary(passenger.getEmail(), filePath);

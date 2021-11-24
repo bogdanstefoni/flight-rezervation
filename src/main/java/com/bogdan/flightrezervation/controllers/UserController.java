@@ -2,7 +2,11 @@ package com.bogdan.flightrezervation.controllers;
 
 import com.bogdan.flightrezervation.entities.User;
 import com.bogdan.flightrezervation.repos.UserRepository;
+import com.bogdan.flightrezervation.services.SecurityService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,8 +18,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/")
 public class UserController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+
+    @Autowired
+    private SecurityService securityService;
 
     @RequestMapping("/showReg")
     public String showRegistrationPage() {
@@ -24,6 +36,8 @@ public class UserController {
 
     @RequestMapping(value = "/registerUser", method = RequestMethod.POST)
     public String register(@ModelAttribute User user) {
+        logger.info("Registered user: " + user);
+        user.setPassword(encoder.encode(user.getPassword()));
         userRepository.save(user);
         return "login/login";
     }
@@ -36,8 +50,8 @@ public class UserController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public String login(@RequestParam("email") String email, @RequestParam("password") String password,
                         ModelMap modelMap) {
-        User user = userRepository.findByEmail(email);
-        if(user.getPassword().equals(password)) {
+        boolean loginResponse = securityService.login(email, password);
+        if(loginResponse) {
             return "findFlights";
         }else {
             modelMap.addAttribute("msg", "Invalid username or password. Please try again.");
