@@ -1,5 +1,6 @@
 package com.bogdan.flightrezervation.services;
 
+import com.bogdan.flightrezervation.annotation.LogMethodParameters;
 import com.bogdan.flightrezervation.entities.User;
 import com.bogdan.flightrezervation.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
+    @LogMethodParameters
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = userRepository.findByEmail(username);

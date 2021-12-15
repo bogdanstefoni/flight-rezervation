@@ -1,5 +1,6 @@
 package com.bogdan.flightrezervation.services;
 
+import com.bogdan.flightrezervation.annotation.LogMethodParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ public class SecurityServiceImpl implements SecurityService{
     AuthenticationManager authenticationManager;
 
     @Override
+    @LogMethodParameters
     public boolean login(String username, String password) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
